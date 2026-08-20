@@ -1,0 +1,22 @@
+services:
+  notify:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    env_file:
+      - ./deploy/.env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./deploy/config:/app/config:ro
+    environment:
+      SPRING_CONFIG_ADDITIONAL_LOCATION: optional:file:/app/config/
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health >/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

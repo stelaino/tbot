@@ -1,0 +1,70 @@
+notify:
+  clients:
+    chatgpt-action:
+      api-key: chatgpt-test-key
+      allowed-routes: [chatgpt-notify, gossip-notify]
+      allowed-endpoints: []
+    monitoring-system:
+      api-key: monitoring-test-key
+      allowed-routes: [production-alert, first-success, primary-backup]
+      allowed-endpoints: [production-alert-hook]
+    finance-system:
+      api-key: finance-test-key
+      allowed-routes: [finance-message]
+      allowed-endpoints: [finance-hook]
+  bots:
+    ops-bot:
+      type: CUSTOM
+      webhook: mock://ops
+    dev-bot:
+      type: CUSTOM
+      webhook: mock://dev
+    finance-bot:
+      type: CUSTOM
+      webhook: mock://finance
+    gossip-bot:
+      type: CUSTOM
+      webhook: mock://gossip
+  groups:
+    production-alert-group:
+      bots: [ops-bot, dev-bot]
+    gossip-group:
+      bots: [gossip-bot]
+  routes:
+    production-alert:
+      target-type: GROUP
+      target: production-alert-group
+      strategy: ALL
+    finance-message:
+      target-type: BOT
+      target: finance-bot
+      strategy: ALL
+    first-success:
+      target-type: GROUP
+      target: production-alert-group
+      strategy: FIRST_SUCCESS
+    primary-backup:
+      target-type: GROUP
+      target: production-alert-group
+      strategy: PRIMARY_BACKUP
+    chatgpt-notify:
+      target-type: GROUP
+      target: production-alert-group
+      strategy: ALL
+    gossip-notify:
+      target-type: GROUP
+      target: gossip-group
+      strategy: ALL
+  endpoints:
+    production-alert-hook:
+      path: /hook/production-alert
+      target-type: ROUTE
+      target: production-alert
+    finance-hook:
+      path: /hook/finance
+      target-type: BOT
+      target: finance-bot
+    gossip-hook:
+      path: /hook/gossip
+      target-type: ROUTE
+      target: gossip-notify

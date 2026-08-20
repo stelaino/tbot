@@ -1,0 +1,9 @@
+target/
+.DS_Store
+.codegraph/
+.idea/
+*.iml
+deploy/.env
+deploy/config/application.yml
+deploy/Caddyfile
+deploy/secrets/

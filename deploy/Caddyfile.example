@@ -1,0 +1,4 @@
+{$DOMAIN} {
+    tls {$EMAIL}
+    reverse_proxy notify:8080
+}

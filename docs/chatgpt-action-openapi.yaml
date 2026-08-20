@@ -1,0 +1,79 @@
+openapi: 3.1.0
+info:
+  title: Unified Message Forwarding API
+  version: v1
+  description: Send messages only through preconfigured route keys.
+servers:
+  - url: https://notify.example.com
+paths:
+  /api/v1/messages:
+    post:
+      operationId: sendMessage
+      summary: Send a configured notification
+      description: Send TEXT or MARKDOWN through an allowed routeKey. Do not accept webhook or target URLs.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteMessageRequest'
+      responses:
+        '200':
+          description: Delivery completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: API key is invalid
+        '409':
+          description: Duplicate requestId
+        '429':
+          description: Rate limit exceeded
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  schemas:
+    RouteMessageRequest:
+      type: object
+      required: [routeKey, requestId, message]
+      properties:
+        routeKey:
+          type: string
+          description: A route permitted for this Action key. Use gossip-notify for the gossip group.
+          enum: [chatgpt-notify, gossip-notify]
+          example: gossip-notify
+        requestId:
+          type: string
+          description: A caller-generated idempotency key.
+          example: chatgpt-20260820-001
+        message:
+          type: object
+          required: [type, content]
+          properties:
+            type:
+              type: string
+              enum: [TEXT, MARKDOWN]
+            content:
+              type: string
+              maxLength: 4000
+    MessageResponse:
+      type: object
+      required: [requestId, status, total, successCount, failedCount]
+      properties:
+        requestId:
+          type: string
+        status:
+          type: string
+          enum: [SUCCESS, PARTIAL_SUCCESS, FAILED]
+        total:
+          type: integer
+        successCount:
+          type: integer
+        failedCount:
+          type: integer

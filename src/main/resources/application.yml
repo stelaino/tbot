@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: unified-message-forwarding
+  cloud:
+    gateway:
+      server:
+        webflux:
+          enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+# 客户端、机器人、群组、路由和 Endpoint 均为部署配置，不能打包进应用。
+# Docker Compose 会从 /app/config/application.yml 读取这些配置。

@@ -1,0 +1,68 @@
+# 这是唯一需要维护的业务配置模板；应用包不包含 Client、Bot、Group、Route 或 Endpoint。
+# 凭据通过 deploy/.env 注入，避免将 API Key 和 Webhook 提交到仓库。
+notify:
+  duplicate-ttl: 10m
+  clients:
+    chatgpt-action:
+      api-key: ${CHATGPT_ACTION_API_KEY}
+      requests-per-minute: 30
+      allowed-routes: [chatgpt-notify, gossip-notify]
+      allowed-endpoints: []
+    monitoring-system:
+      api-key: ${MONITORING_API_KEY}
+      requests-per-minute: 60
+      allowed-routes: [production-alert]
+      allowed-endpoints: [production-alert-hook]
+    finance-system:
+      api-key: ${FINANCE_API_KEY}
+      requests-per-minute: 30
+      allowed-routes: []
+      allowed-endpoints: [finance-hook]
+  bots:
+    ops-bot:
+      name: 运维机器人
+      type: WECOM
+      webhook: ${OPS_WECOM_WEBHOOK}
+    dev-bot:
+      name: 开发机器人
+      type: WECOM
+      webhook: ${DEV_WECOM_WEBHOOK}
+    finance-bot:
+      name: 财务机器人
+      type: WECOM
+      webhook: ${FINANCE_WECOM_WEBHOOK}
+    gossip-bot:
+      name: 八卦机器人
+      type: WECOM
+      webhook: ${GOSSIP_WECOM_WEBHOOK}
+  groups:
+    production-alert-group:
+      bots: [ops-bot, dev-bot]
+    gossip-group:
+      bots: [gossip-bot]
+  routes:
+    production-alert:
+      target-type: GROUP
+      target: production-alert-group
+      strategy: ALL
+    chatgpt-notify:
+      target-type: GROUP
+      target: production-alert-group
+      strategy: ALL
+    gossip-notify:
+      target-type: GROUP
+      target: gossip-group
+      strategy: ALL
+  endpoints:
+    production-alert-hook:
+      path: /hook/production-alert
+      target-type: ROUTE
+      target: production-alert
+    finance-hook:
+      path: /hook/finance
+      target-type: BOT
+      target: finance-bot
+    gossip-hook:
+      path: /hook/gossip
+      target-type: ROUTE
+      target: gossip-notify
