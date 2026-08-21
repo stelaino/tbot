@@ -54,6 +54,8 @@ public class NotifyProperties {
         private String name;
         private BotType type;
         private String webhook;
+        private String secret;
+        private String header;
         private boolean enabled = true;
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
@@ -61,6 +63,10 @@ public class NotifyProperties {
         public void setType(BotType type) { this.type = type; }
         public String getWebhook() { return webhook; }
         public void setWebhook(String webhook) { this.webhook = webhook; }
+        public String getSecret() { return secret; }
+        public void setSecret(String secret) { this.secret = secret; }
+        public String getHeader() { return header; }
+        public void setHeader(String header) { this.header = header; }
         public boolean isEnabled() { return enabled; }
         public void setEnabled(boolean enabled) { this.enabled = enabled; }
     }

@@ -6,7 +6,7 @@ notify:
     chatgpt-action:
       api-key: ${CHATGPT_ACTION_API_KEY}
       requests-per-minute: 30
-      allowed-routes: [chatgpt-notify, gossip-notify]
+      allowed-routes: [chatgpt-notify, gossip-notify, dingtalk-notify]
       allowed-endpoints: []
     monitoring-system:
       api-key: ${MONITORING_API_KEY}
@@ -35,9 +35,19 @@ notify:
       name: 八卦机器人
       type: WECOM
       webhook: ${GOSSIP_WECOM_WEBHOOK}
+    dingtalk-bot:
+      name: 钉钉机器人
+      type: DINGTALK
+      webhook: ${DINGTALK_ROBOT_WEBHOOK}
+      secret: ${DINGTALK_ROBOT_SECRET}
+      header: "【纯八卦】" # 可选；不配置或留空时不添加任何前缀
+    feishu-bot:
+      name: 飞书机器人
+      type: FEISHU
+      webhook: ${FEISHU_CHATGPT_WEBHOOK}
   groups:
     production-alert-group:
-      bots: [ops-bot, dev-bot]
+      bots: [ops-bot, dev-bot, feishu-bot]
     gossip-group:
       bots: [gossip-bot]
   routes:
@@ -52,6 +62,10 @@ notify:
     gossip-notify:
       target-type: GROUP
       target: gossip-group
+      strategy: ALL
+    dingtalk-notify:
+      target-type: BOT
+      target: dingtalk-bot
       strategy: ALL
   endpoints:
     production-alert-hook:

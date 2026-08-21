@@ -2,7 +2,7 @@ notify:
   clients:
     chatgpt-action:
       api-key: chatgpt-test-key
-      allowed-routes: [chatgpt-notify, gossip-notify]
+      allowed-routes: [chatgpt-notify, gossip-notify, dingtalk-notify]
       allowed-endpoints: []
     monitoring-system:
       api-key: monitoring-test-key
@@ -25,9 +25,16 @@ notify:
     gossip-bot:
       type: CUSTOM
       webhook: mock://gossip
+    dingtalk-bot:
+      type: DINGTALK
+      webhook: mock://dingtalk
+      secret: SECtest
+    feishu-bot:
+      type: FEISHU
+      webhook: mock://feishu
   groups:
     production-alert-group:
-      bots: [ops-bot, dev-bot]
+      bots: [ops-bot, dev-bot, feishu-bot]
     gossip-group:
       bots: [gossip-bot]
   routes:
@@ -54,6 +61,10 @@ notify:
     gossip-notify:
       target-type: GROUP
       target: gossip-group
+      strategy: ALL
+    dingtalk-notify:
+      target-type: BOT
+      target: dingtalk-bot
       strategy: ALL
   endpoints:
     production-alert-hook:

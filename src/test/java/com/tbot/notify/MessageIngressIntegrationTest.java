@@ -25,8 +25,8 @@ class MessageIngressIntegrationTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.status").isEqualTo("PARTIAL_SUCCESS")
-                .jsonPath("$.total").isEqualTo(2)
-                .jsonPath("$.successCount").isEqualTo(1)
+                .jsonPath("$.total").isEqualTo(3)
+                .jsonPath("$.successCount").isEqualTo(2)
                 .jsonPath("$.failedCount").isEqualTo(1);
     }
 
@@ -36,6 +36,20 @@ class MessageIngressIntegrationTest {
                 .header("X-Api-Key", "chatgpt-test-key")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(routeRequest("gossip-notify", "gossip-1"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("SUCCESS")
+                .jsonPath("$.total").isEqualTo(1)
+                .jsonPath("$.successCount").isEqualTo(1);
+    }
+
+    @Test
+    void chatGptActionCanSendToTheSignedDingTalkBot() {
+        client.post().uri("/api/v1/messages")
+                .header("X-Api-Key", "chatgpt-test-key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(routeRequest("dingtalk-notify", "dingtalk-1"))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()

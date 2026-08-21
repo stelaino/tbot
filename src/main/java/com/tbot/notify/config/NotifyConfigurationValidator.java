@@ -1,6 +1,7 @@
 package com.tbot.notify.config;
 
 import com.tbot.notify.domain.TargetType;
+import com.tbot.notify.domain.BotType;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,9 @@ class NotifyConfigurationValidator {
         properties.getBots().forEach((code, bot) -> {
             require(bot.getType() != null, "bot " + code + " must define type");
             require(hasText(bot.getWebhook()), "bot " + code + " must define webhook");
+            if (bot.getType() == BotType.DINGTALK) {
+                require(hasText(bot.getSecret()), "DingTalk bot " + code + " must define secret");
+            }
         });
         properties.getGroups().forEach((code, group) -> {
             require(!group.getBots().isEmpty(), "group " + code + " must contain bots");

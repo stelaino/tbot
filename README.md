@@ -44,9 +44,15 @@ Content-Type: application/json
 
 ## ChatGPT 网页版
 
-使用自定义 GPT 的 **Actions**，不是 MCP。将 [OpenAPI 文件](docs/chatgpt-action-openapi.yaml) 粘贴或导入 Actions 配置；认证选择 **API Key → Custom header**，Header 名填写 `X-Api-Key`，值使用 `chatgpt-action` Client 的 key。该 Action 可使用 `chatgpt-notify` 与 `gossip-notify` 两个 Route。
+使用自定义 GPT 的 **Actions**，不是 MCP。将 [OpenAPI 文件](docs/chatgpt-action-openapi.yaml) 粘贴或导入 Actions 配置；认证选择 **API Key → Custom header**，Header 名填写 `X-Api-Key`，值使用 `chatgpt-action` Client 的 key。该 Action 可使用 `chatgpt-notify`、`gossip-notify` 与 `dingtalk-notify` 三个 Route。
 
 `gossip-notify` 会将消息发送到只包含“八卦机器人”的 `gossip-group`。也可使用固定入口 `POST /hook/gossip`；它必须使用被授权的 Client Key。
+
+`dingtalk-notify` 会直接投递到“钉钉机器人”。在 `.env` 中填入自定义机器人的 Webhook（含 `access_token`）和开启“加签”后获得的 `DINGTALK_ROBOT_SECRET`；服务会自动计算 `timestamp` 与 HMAC-SHA256 签名，不会记录 Secret 或带签名的 Webhook。
+
+`chatgpt-notify` 默认组除企业微信机器人外，也会投递到飞书机器人。在 `.env` 中填写 `FEISHU_CHATGPT_WEBHOOK`；TEXT 消息会以飞书文本消息发送，MARKDOWN 消息会以飞书交互卡片发送。
+
+每个 Bot 都可选配 `header`。配置后会原样前置到该 Bot 的 TEXT 或 MARKDOWN 内容，例如 `header: "【统一消息转发中心】"`；不配置或留空时，消息内容不作任何改变。
 
 ## 本地运行
 
@@ -73,6 +79,8 @@ docker compose up --build
 默认 Compose 使用 [Dockerfile.local](Dockerfile.local)，将本机已打包的 jar 放入 JDK 21 运行镜像，避免本地部署时在容器内重复下载 Maven 依赖。需要在容器内从源码独立构建时，可使用原始 [Dockerfile](Dockerfile)。
 
 默认模板已包含“八卦机器人”：只需在 `.env` 填写 `GOSSIP_WECOM_WEBHOOK`，随后使用 `gossip-notify` 路由即可将内容发送到八卦群。
+
+默认模板也包含“钉钉机器人”：填写 `DINGTALK_ROBOT_WEBHOOK` 与 `DINGTALK_ROBOT_SECRET` 后，ChatGPT Action 使用 `dingtalk-notify` 即可发送消息。
 
 需要让 ChatGPT Actions 调用时，必须使用真实公网域名和 HTTPS。复制 Caddy 配置并运行：
 

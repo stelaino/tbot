@@ -45,9 +45,9 @@ components:
       properties:
         routeKey:
           type: string
-          description: A route permitted for this Action key. Use gossip-notify for the gossip group.
-          enum: [chatgpt-notify, gossip-notify]
-          example: gossip-notify
+          description: A route permitted for this Action key. Use dingtalk-notify for the signed DingTalk robot.
+          enum: [chatgpt-notify, gossip-notify, dingtalk-notify]
+          example: dingtalk-notify
         requestId:
           type: string
           description: A caller-generated idempotency key.
