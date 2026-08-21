@@ -1,11 +1,11 @@
 package com.tbot.notify.workflow;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tbot.notify.domain.BotDeliveryResult;
 import com.tbot.notify.domain.BotType;
 import com.tbot.notify.domain.DeliveryPlan;
 import com.tbot.notify.domain.Message;
 import com.tbot.notify.domain.MessageType;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -17,23 +17,27 @@ import java.time.Duration;
 import java.util.Map;
 
 @Component
-public class WeComBotSender implements BotSender {
-    private static final Logger log = LoggerFactory.getLogger(WeComBotSender.class);
+public class DingTalkBotSender implements BotSender {
+    private static final Logger log = LoggerFactory.getLogger(DingTalkBotSender.class);
     private final WebClient webClient = WebClient.builder().build();
 
     @Override
     public boolean supports(DeliveryPlan.ResolvedBot bot) {
-        return bot.definition().getType() == BotType.WECOM;
+        return bot.definition().getType() == BotType.DINGTALK;
     }
 
     @Override
     public Mono<BotDeliveryResult> send(DeliveryPlan.ResolvedBot bot, Message message) {
+        String title = bot.definition().getName() == null || bot.definition().getName().isBlank()
+                ? bot.code() : bot.definition().getName();
         String content = BotMessageFormatter.format(bot.definition(), message);
         Map<String, Object> body = message.type() == MessageType.MARKDOWN
-                ? Map.of("msgtype", "markdown", "markdown", Map.of("content", content))
+                ? Map.of("msgtype", "markdown", "markdown", Map.of("title", title, "text", content))
                 : Map.of("msgtype", "text", "text", Map.of("content", content));
+        String signedWebhook = DingTalkSigner.signedWebhook(bot.definition().getWebhook(),
+                System.currentTimeMillis(), bot.definition().getSecret());
         return webClient.post()
-                .uri(bot.definition().getWebhook())
+                .uri(signedWebhook)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(body)
                 .retrieve()
